@@ -1,0 +1,14 @@
+env: "local" #local | dev | prod
+storage_path: "http://localhost:5432"
+alias_length: 6
+http_server:
+  address: "localhost:8082"
+  timeout: 4s
+  idle_timeout: 60s
+pgsql:
+  db_host: "localhost"
+  db_port: 5432
+  db_user: "admin"
+  db_pass: "secret"
+  db_name: "url_shortener"
+  db_ssl_mode: "disable"
