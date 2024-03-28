@@ -52,7 +52,7 @@ func New(log *slog.Logger, urlSaver URLSaver, aliasLength int64) http.HandlerFun
 			return
 		}
 
-		log.Info("тело запроса обработано", slog.Any("запрос", req))
+		log.Info("тело запроса обработано", slog.Any("request", req))
 
 		if err := validator.New().Struct(req); err != nil {
 			var validateErr validator.ValidationErrors

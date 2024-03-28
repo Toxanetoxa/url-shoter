@@ -11,12 +11,12 @@ import (
 )
 
 type UrlDeleter interface {
-	DeleteById(id int) error
-	ExistUrlById(id int) (bool, error)
+	DeleteById(id int64) error
+	ExistUrlById(id int64) (bool, error)
 }
 
 type Request struct {
-	Id int `json:"id"`
+	Id int64 `json:"id"`
 }
 
 type Response struct {
@@ -33,9 +33,9 @@ func Delete(log *slog.Logger, deleter UrlDeleter) http.HandlerFunc {
 			slog.String("request_id", middleware.GetReqID(r.Context())),
 		)
 
-		id, err := strconv.Atoi(chi.URLParam(r, "id"))
+		id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 		if err != nil {
-			log.Error(op, "не верно передан id, он должен быть типа int", id, err)
+			log.Error(op, "не верно передан id, он должен быть типа int64", id, err)
 			responseError(w, r, err)
 		}
 

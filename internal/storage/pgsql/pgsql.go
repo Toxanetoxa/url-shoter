@@ -15,7 +15,7 @@ type Storage struct {
 }
 
 type URLData struct {
-	Id    int    `json:"id"`
+	Id    int64  `json:"id"`
 	Alias string `json:"alias"`
 	Url   string `json:"url"`
 }
@@ -122,7 +122,7 @@ func (s *Storage) GetURL(alias string) (string, error) {
 }
 
 // DeleteById удаление урла из таблицы по id
-func (s *Storage) DeleteById(id int) error {
+func (s *Storage) DeleteById(id int64) error {
 	const op = "storage.pgsql.DeleteById"
 
 	stmt, err := s.db.Prepare("DELETE FROM urls WHERE id=$1")
@@ -148,7 +148,7 @@ func (s *Storage) DeleteById(id int) error {
 }
 
 // ExistUrlById проверка наличия записи url по id
-func (s *Storage) ExistUrlById(id int) (bool, error) {
+func (s *Storage) ExistUrlById(id int64) (bool, error) {
 	const op = "storage.pgsql.CheckUrlById"
 	stmt, err := s.db.Prepare("SELECT COUNT(*) FROM urls WHERE id = $1")
 	if err != nil {
