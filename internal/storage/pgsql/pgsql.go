@@ -29,8 +29,6 @@ type DBConfig struct {
 	SSLMode  string
 }
 
-//TODO привести в порядок использование логгера
-
 // ConnectDB Подключение к бд
 func ConnectDB(configDB DBConfig) (*Storage, error) {
 	const op = "storage.pgsql.ConnectDB"
@@ -167,8 +165,6 @@ func (s *Storage) ExistUrlById(id int64) (bool, error) {
 	// Если количество записей с указанным ID больше нуля, то URL существует
 	return count > 0, nil
 }
-
-// TODO написать удаление url по Alias
 
 // CheckAllUrls вывод всех записей из таблицы для дебага
 func (s *Storage) CheckAllUrls() ([]URLData, error) {

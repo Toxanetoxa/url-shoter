@@ -34,7 +34,6 @@ func SetupLogger(env string) *slog.Logger {
 	return log
 }
 
-// TODO разобраться с кастомным красивым логером
 func setupPrettySlog() *slog.Logger {
 	opts := slogpretty.PrettyHandlerOptions{
 		SlogOpts: &slog.HandlerOptions{

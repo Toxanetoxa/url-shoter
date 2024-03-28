@@ -23,11 +23,6 @@ type Response struct {
 	Alias string `json:"alias,omitempty"`
 }
 
-// TODO move to config or db
-//const aliasLength = 6
-
-//go:generate go run github.com/vektra/mockery/v2@v2.42.1 --name=URLSaver
-
 type URLSaver interface {
 	SaveUrl(urlToSave string, alias string) (int64, error)
 }
@@ -67,7 +62,7 @@ func New(log *slog.Logger, urlSaver URLSaver, aliasLength int64) http.HandlerFun
 		alias := req.Alias
 		if alias == "" {
 			alias = random.NewRandomString(aliasLength)
-			// TODO реализовать проверку на уже существующий алиас
+			// реализовать проверку на уже существующий алиас
 		}
 
 		id, err := urlSaver.SaveUrl(req.URL, alias)

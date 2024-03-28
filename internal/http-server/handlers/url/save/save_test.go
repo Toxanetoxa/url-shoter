@@ -1,7 +1,5 @@
 package save_test
 
-//TODO написать тесты
-//
 //import (
 //	"bytes"
 //	"encoding/json"
@@ -92,7 +90,6 @@ package save_test
 //
 //			require.Equal(t, tc.respError, resp.Error)
 //
-//			// TODO: add more checks
 //		})
 //	}
 //}

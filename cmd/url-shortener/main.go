@@ -72,7 +72,6 @@ func main() {
 	router.Use(mwLogger.New(*log)) // кастомный логгер
 
 	//routing breakpoints
-	//TODO реализовать обязательную авторизацию и удаление урлов не под своим имемен
 	//router.Route("/url", func(r chi.Router) {
 	//	r.Use(middleware.BasicAuth("url-shooter"), map[string]string{
 	//		user: password,
