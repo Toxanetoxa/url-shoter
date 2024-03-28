@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"url-shoter/internal/config"
+	"url-shoter/internal/http-server/handlers/url/delete"
 	"url-shoter/internal/http-server/handlers/url/redirect"
 	"url-shoter/internal/http-server/handlers/url/save"
 	"url-shoter/internal/http-server/handlers/url/showAll"
@@ -49,12 +50,19 @@ func main() {
 	storage, err := pgsql.ConnectDB(pgsql.DBConfig(pgcfg))
 	if err != nil {
 		log.Error("Неудалось подключиться к бд:", pgcfg)
-		os.Exit(1) // or return
+		os.Exit(1)
 	}
+
+	//err = storage.DeleteById(1)
+	//if err != nil {
+	//	log.Error("Неудалось подключиться к бд:", pgcfg)
+	//	os.Exit(1)
+	//}
 	//подключение к бд это будет использоваться внутри хендлеров
 
 	//init router: chi, "chi-render"
 	router := chi.NewRouter()
+
 	//middleware
 	router.Use(middleware.RequestID) // добавляет реквест айди к каждому запросу для трейсинга
 	router.Use(middleware.RealIP)
@@ -62,10 +70,15 @@ func main() {
 	router.Use(middleware.Recoverer)
 	router.Use(middleware.URLFormat)
 	router.Use(mwLogger.New(*log)) // кастомный логгер
-	//break points
-	router.Post("/url", save.New(log, storage, cfg.AliasLength))
+
+	//routing breakpoints
+	//get
 	router.Get("/all", showAll.New(log, storage))
 	router.Get("/{alias}", redirect.New(log, storage))
+	//post
+	router.Post("/url", save.New(log, storage, cfg.AliasLength))
+	//delete
+	router.Delete("/{id}", delete.Delete(log, storage))
 
 	log.Info("сервер запущен", slog.String("address", cfg.Address))
 

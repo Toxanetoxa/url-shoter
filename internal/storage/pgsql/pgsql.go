@@ -29,6 +29,8 @@ type DBConfig struct {
 	SSLMode  string
 }
 
+//TODO привести в порядок использование логгера
+
 // ConnectDB Подключение к бд
 func ConnectDB(configDB DBConfig) (*Storage, error) {
 	const op = "storage.pgsql.ConnectDB"
@@ -99,7 +101,7 @@ func (s *Storage) SaveUrl(urlToSave string, alias string) (int64, error) {
 	return id, nil
 }
 
-// GetURL GetUrl Получение url
+// GetURL Получение url
 func (s *Storage) GetURL(alias string) (string, error) {
 	const op = "storage.pgsql.GetUrl"
 	stmt, err := s.db.Prepare("SELECT url FROM urls WHERE alias = $1")
@@ -119,9 +121,54 @@ func (s *Storage) GetURL(alias string) (string, error) {
 	return resURL, nil
 }
 
-// TODO написать удаление url
-//func (s *Storage) DeleteUrl(alias string) (string, error) {
-//}
+// DeleteById удаление урла из таблицы по id
+func (s *Storage) DeleteById(id int) error {
+	const op = "storage.pgsql.DeleteById"
+
+	stmt, err := s.db.Prepare("DELETE FROM urls WHERE id=$1")
+	if err != nil {
+		log.Fatalf("%s: не удалоcь удалить url по id: %w", op, err)
+		return err
+	}
+	defer func(stmt *sql.Stmt) {
+		err := stmt.Close()
+		if err != nil {
+			log.Fatalf("%s: не удалось закрыть подключение к базе данных", err)
+		}
+	}(stmt)
+
+	_, err = stmt.Exec(id)
+	if err != nil {
+		log.Fatalf("%s: не удалось выполнить запрос на удаление URL по ID: %w", op, err)
+		return err
+	}
+
+	log.Printf("Удаление url по id :%s прошло успешно", id)
+	return nil
+}
+
+// ExistUrlById проверка наличия записи url по id
+func (s *Storage) ExistUrlById(id int) (bool, error) {
+	const op = "storage.pgsql.CheckUrlById"
+	stmt, err := s.db.Prepare("SELECT COUNT(*) FROM urls WHERE id = $1")
+	if err != nil {
+		log.Fatalf("%s: не удалось подготовить запрос на поиск URL по ID: %v", op, err)
+		return false, err
+	}
+	defer stmt.Close()
+
+	var count int
+	err = stmt.QueryRow(id).Scan(&count)
+	if err != nil {
+		log.Fatalf("%s: не удалось выполнить запрос на поиск URL по ID: %v", op, err)
+		return false, err
+	}
+
+	// Если количество записей с указанным ID больше нуля, то URL существует
+	return count > 0, nil
+}
+
+// TODO написать удаление url по Alias
 
 // CheckAllUrls вывод всех записей из таблицы для дебага
 func (s *Storage) CheckAllUrls() ([]URLData, error) {
