@@ -15,9 +15,9 @@ type Storage struct {
 }
 
 type URLData struct {
-	Id    int
-	Alias string
-	Url   string
+	Id    int    `json:"id"`
+	Alias string `json:"alias"`
+	Url   string `json:"url"`
 }
 
 type DBConfig struct {
