@@ -78,7 +78,7 @@ func main() {
 	//post
 	router.Post("/url", save.New(log, storage, cfg.AliasLength))
 	//delete
-	router.Delete("/{id}", delete.Delete(log, storage))
+	router.Delete("/url/{id}", delete.Delete(log, storage))
 
 	log.Info("сервер запущен", slog.String("address", cfg.Address))
 
