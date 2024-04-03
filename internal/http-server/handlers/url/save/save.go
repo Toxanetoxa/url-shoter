@@ -23,13 +23,9 @@ type Response struct {
 	Alias string `json:"alias,omitempty"`
 }
 
-// TODO move to config or db
-//const aliasLength = 6
-
-//go:generate go run github.com/vektra/mockery/v2@v2.42.1 --name=URLSaver
-
 type URLSaver interface {
 	SaveUrl(urlToSave string, alias string) (int64, error)
+	ExistUrlByAlias(alias string) (bool, error)
 }
 
 func New(log *slog.Logger, urlSaver URLSaver, aliasLength int64) http.HandlerFunc {
@@ -67,14 +63,21 @@ func New(log *slog.Logger, urlSaver URLSaver, aliasLength int64) http.HandlerFun
 		alias := req.Alias
 		if alias == "" {
 			alias = random.NewRandomString(aliasLength)
-			// TODO реализовать проверку на уже существующий алиас
+		}
+
+		isSetAlias, err := urlSaver.ExistUrlByAlias(alias)
+		if isSetAlias || err != nil {
+			log.Info("Не удалось сохранить url, Alias: ", alias, " уже существует")
+			responseError(w, r, alias, "alias already exists")
+
+			return
 		}
 
 		id, err := urlSaver.SaveUrl(req.URL, alias)
 		if errors.Is(err, storage.ErrURLExists) {
 			log.Info("URL уже существует", slog.String("url", req.URL))
 
-			render.JSON(w, r, resp.Error("url уже существует"))
+			responseError(w, r, alias, "url уже существует")
 
 			return
 		}
@@ -95,6 +98,13 @@ func New(log *slog.Logger, urlSaver URLSaver, aliasLength int64) http.HandlerFun
 func responseOk(w http.ResponseWriter, r *http.Request, alias string) {
 	render.JSON(w, r, Response{
 		Response: resp.OK(),
+		Alias:    alias,
+	})
+}
+
+func responseError(w http.ResponseWriter, r *http.Request, alias string, error string) {
+	render.JSON(w, r, Response{
+		Response: resp.Error(error),
 		Alias:    alias,
 	})
 }

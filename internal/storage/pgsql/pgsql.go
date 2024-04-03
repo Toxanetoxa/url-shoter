@@ -29,8 +29,6 @@ type DBConfig struct {
 	SSLMode  string
 }
 
-//TODO привести в порядок использование логгера
-
 // ConnectDB Подключение к бд
 func ConnectDB(configDB DBConfig) (*Storage, error) {
 	const op = "storage.pgsql.ConnectDB"
@@ -38,7 +36,7 @@ func ConnectDB(configDB DBConfig) (*Storage, error) {
 	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=%s", configDB.Host, configDB.Port, configDB.User, configDB.Password, configDB.DBName, configDB.SSLMode)
 	db, err := sql.Open("postgres", psqlInfo)
 	if err != nil {
-		log.Fatalf("%w :Hе удалось пождключиться к бд с данными: %w", psqlInfo, op)
+		log.Fatalf("%w :Hе удалось подключиться к бд с данными: %w", psqlInfo, op)
 	}
 
 	log.Println("Подключение к бд прошло успешно")
@@ -84,7 +82,7 @@ func (s *Storage) SaveUrl(urlToSave string, alias string) (int64, error) {
 	defer func(stmt *sql.Stmt) {
 		err := stmt.Close()
 		if err != nil {
-			_ = fmt.Errorf("%s: не удалось закрыть подключение к базе данных", op, err)
+			logErrorCloseDb(op, err)
 		}
 	}(stmt)
 
@@ -133,7 +131,7 @@ func (s *Storage) DeleteById(id int64) error {
 	defer func(stmt *sql.Stmt) {
 		err := stmt.Close()
 		if err != nil {
-			log.Fatalf("%s: не удалось закрыть подключение к базе данных", err)
+			logErrorCloseDb(op, err)
 		}
 	}(stmt)
 
@@ -149,15 +147,20 @@ func (s *Storage) DeleteById(id int64) error {
 
 // ExistUrlById проверка наличия записи url по id
 func (s *Storage) ExistUrlById(id int64) (bool, error) {
-	const op = "storage.pgsql.CheckUrlById"
+	const op = "storage.pgsql.ExistUrlById"
 	stmt, err := s.db.Prepare("SELECT COUNT(*) FROM urls WHERE id = $1")
 	if err != nil {
 		log.Fatalf("%s: не удалось подготовить запрос на поиск URL по ID: %v", op, err)
 		return false, err
 	}
-	defer stmt.Close()
+	defer func(stmt *sql.Stmt) {
+		err := stmt.Close()
+		if err != nil {
+			logErrorCloseDb(op, err)
+		}
+	}(stmt)
 
-	var count int
+	var count int64
 	err = stmt.QueryRow(id).Scan(&count)
 	if err != nil {
 		log.Fatalf("%s: не удалось выполнить запрос на поиск URL по ID: %v", op, err)
@@ -168,7 +171,30 @@ func (s *Storage) ExistUrlById(id int64) (bool, error) {
 	return count > 0, nil
 }
 
-// TODO написать удаление url по Alias
+// ExistUrlByAlias проверка наличия урла по алиасу
+func (s *Storage) ExistUrlByAlias(alias string) (bool, error) {
+	const op = "storage.pgsql.ExistUrlByAlias"
+	stmt, err := s.db.Prepare("SELECT COUNT(*) FROM urls WHERE alias = $1")
+	if err != nil {
+		log.Fatalf("%s: не удалось подготовить запрос на поиск URL по Alias: %v", op, err)
+		return false, err
+	}
+	defer func(stmt *sql.Stmt) {
+		err := stmt.Close()
+		if err != nil {
+			logErrorCloseDb(op, err)
+		}
+	}(stmt)
+
+	var count int64
+	err = stmt.QueryRow(alias).Scan(&count)
+	if err != nil {
+		log.Fatalf("%s: не удалось выполнить запрос на поиск URL по Alias: %v", op, err)
+		return false, err
+	}
+
+	return count > 0, nil
+}
 
 // CheckAllUrls вывод всех записей из таблицы для дебага
 func (s *Storage) CheckAllUrls() ([]URLData, error) {
@@ -181,7 +207,7 @@ func (s *Storage) CheckAllUrls() ([]URLData, error) {
 	defer func(rows *sql.Rows) {
 		var err = rows.Close()
 		if err != nil {
-			_ = fmt.Errorf("%s: не удалось закрыть подключение к базе данных", op, err)
+			logErrorCloseDb(op, err)
 		}
 	}(rows)
 
@@ -200,4 +226,8 @@ func (s *Storage) CheckAllUrls() ([]URLData, error) {
 		return nil, err
 	}
 	return urlsDataList, nil
+}
+
+func logErrorCloseDb(op string, err error) {
+	log.Fatalf("%s, не удалось отключиться от базы данных", op, err)
 }
