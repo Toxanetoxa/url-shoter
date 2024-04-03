@@ -25,6 +25,11 @@ type DBConfig struct {
 	SSLMode  string
 }
 
+// @title url-shoter APIs
+// @version 1.0
+// @description chi-swagger example APIs
+// @BasePath /
+
 func main() {
 	//init config: clean env
 	cfg := config.MustLoad()
