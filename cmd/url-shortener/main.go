@@ -32,10 +32,6 @@ func main() {
 	//init logger: slog
 	var log *slog.Logger
 	log = logger.SetupLogger(cfg.Env)
-	log.Info(
-		"starting url-shooter",
-		slog.String("env", cfg.Env),
-	)
 
 	//init storage: pgsql
 	var pgcfg DBConfig = DBConfig{
@@ -53,11 +49,6 @@ func main() {
 		os.Exit(1)
 	}
 
-	//err = storage.DeleteById(1)
-	//if err != nil {
-	//	log.Error("Неудалось подключиться к бд:", pgcfg)
-	//	os.Exit(1)
-	//}
 	//подключение к бд это будет использоваться внутри хендлеров
 
 	//init router: chi, "chi-render"
@@ -85,7 +76,7 @@ func main() {
 	//delete
 	router.Delete("/url/{id}", delete.Delete(log, storage))
 
-	log.Info("сервер запущен", slog.String("address", cfg.Address))
+	log.Info("сервер запущен", slog.String("address", cfg.Address), slog.String("env", cfg.Env))
 
 	//run server
 	srv := &http.Server{
