@@ -1,0 +1,8 @@
+basePath: /
+info:
+  contact: {}
+  description: chi-swagger example APIs
+  title: chi-swagger example APIs
+  version: "1.0"
+paths: {}
+swagger: "2.0"
