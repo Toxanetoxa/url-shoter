@@ -8,6 +8,7 @@ import (
 	"os"
 	"url-shoter/internal/config"
 	"url-shoter/internal/http-server/handlers/url/delete"
+	"url-shoter/internal/http-server/handlers/url/editAlias"
 	"url-shoter/internal/http-server/handlers/url/redirect"
 	"url-shoter/internal/http-server/handlers/url/save"
 	"url-shoter/internal/http-server/handlers/url/showAll"
@@ -77,36 +78,30 @@ func main() {
 	//get
 
 	/*
-		@Summary Получить все URL-адреса
-		@Description Получить список всех сохраненных URL-адресов
-		@Tags URLs
-		@Accept json
-		@Produce json
-		@Router /all [get]
+		TODO написать анотацию для swagger
 	*/
 	router.Get("/all", showAll.New(log, storage))
-
-	// @summary Перенаправить на URL по алиасу
-	// @router /{alias} [get]
-	// @tags URLs
-	// @Param alias path string true "Алиас URL"
+	/*
+		TODO написать анотацию для swagger
+	*/
 	router.Get("/{alias}", redirect.New(log, storage))
 
 	//post
 
-	// @summary Создать новый URL-адрес
-	// @router /url [post]
-	// @tags URLs
-	// @Accept json
-	// @Param request body SaveRequest true "Запрос на сохранение URL"
+	/*
+		TODO написать анотацию для swagger
+	*/
 	router.Post("/url", save.New(log, storage, cfg.AliasLength))
+	/*
+		TODO написать анотацию для swagger
+	*/
+	router.Post("/url/edit", editAlias.New(log, storage))
 
 	//delete
 
-	// @summary Удалить URL-адрес по его идентификатору
-	// @router /url/{id} [delete]
-	// @tags URLs
-	// @Param id path int true "Идентификатор URL"
+	/*
+		TODO написать анотацию для swagger
+	*/
 	router.Delete("/url/{id}", delete.Delete(log, storage))
 
 	log.Info("сервер запущен", slog.String("address", cfg.Address), slog.String("env", cfg.Env))

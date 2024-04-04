@@ -30,9 +30,9 @@ type URLSaver interface {
 }
 
 func New(log *slog.Logger, urlSaver URLSaver, aliasLength int64) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		const op = "internal.http.handlers.url.save.New"
+	const op = "internal.http.handlers.url.save.New"
 
+	return func(w http.ResponseWriter, r *http.Request) {
 		log = log.With(
 			slog.String("op", op),
 			slog.String("request_id", middleware.GetReqID(r.Context())),
