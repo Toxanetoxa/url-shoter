@@ -73,12 +73,40 @@ func main() {
 	//		user: password,
 	//	})
 	//})
+
 	//get
+
+	/*
+		@Summary Получить все URL-адреса
+		@Description Получить список всех сохраненных URL-адресов
+		@Tags URLs
+		@Accept json
+		@Produce json
+		@Router /all [get]
+	*/
 	router.Get("/all", showAll.New(log, storage))
+
+	// @summary Перенаправить на URL по алиасу
+	// @router /{alias} [get]
+	// @tags URLs
+	// @Param alias path string true "Алиас URL"
 	router.Get("/{alias}", redirect.New(log, storage))
+
 	//post
+
+	// @summary Создать новый URL-адрес
+	// @router /url [post]
+	// @tags URLs
+	// @Accept json
+	// @Param request body SaveRequest true "Запрос на сохранение URL"
 	router.Post("/url", save.New(log, storage, cfg.AliasLength))
+
 	//delete
+
+	// @summary Удалить URL-адрес по его идентификатору
+	// @router /url/{id} [delete]
+	// @tags URLs
+	// @Param id path int true "Идентификатор URL"
 	router.Delete("/url/{id}", delete.Delete(log, storage))
 
 	log.Info("сервер запущен", slog.String("address", cfg.Address), slog.String("env", cfg.Env))

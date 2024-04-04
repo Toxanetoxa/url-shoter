@@ -23,7 +23,7 @@ var SwaggerInfo = &swag.Spec{
 	Host:             "",
 	BasePath:         "/",
 	Schemes:          []string{},
-	Title:            "chi-swagger example APIs",
+	Title:            "url-shoter APIs",
 	Description:      "chi-swagger example APIs",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
