@@ -8,6 +8,7 @@ import (
 	"os"
 	"url-shoter/internal/config"
 	"url-shoter/internal/http-server/handlers/url/delete"
+	"url-shoter/internal/http-server/handlers/url/editAlias"
 	"url-shoter/internal/http-server/handlers/url/redirect"
 	"url-shoter/internal/http-server/handlers/url/save"
 	"url-shoter/internal/http-server/handlers/url/showAll"
@@ -73,12 +74,34 @@ func main() {
 	//		user: password,
 	//	})
 	//})
+
 	//get
+
+	/*
+		TODO написать анотацию для swagger
+	*/
 	router.Get("/all", showAll.New(log, storage))
+	/*
+		TODO написать анотацию для swagger
+	*/
 	router.Get("/{alias}", redirect.New(log, storage))
+
 	//post
+
+	/*
+		TODO написать анотацию для swagger
+	*/
 	router.Post("/url", save.New(log, storage, cfg.AliasLength))
+	/*
+		TODO написать анотацию для swagger
+	*/
+	router.Post("/url/edit", editAlias.New(log, storage))
+
 	//delete
+
+	/*
+		TODO написать анотацию для swagger
+	*/
 	router.Delete("/url/{id}", delete.Delete(log, storage))
 
 	log.Info("сервер запущен", slog.String("address", cfg.Address), slog.String("env", cfg.Env))

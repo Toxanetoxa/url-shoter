@@ -16,3 +16,8 @@ docker run --name url_shortener-pg -p 5432:5432 -e POSTGRES_USER=admin -e POSTGR
 psql -U admin -d url_shortener
 ```
 
+### Другое
+## для генирации swagger файла используется команда
+```
+swag init -d "./" -g "cmd/url-shortener/main.go"
+```

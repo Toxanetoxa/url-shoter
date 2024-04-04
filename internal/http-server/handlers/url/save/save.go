@@ -16,6 +16,7 @@ import (
 type Request struct {
 	URL   string `json:"url" validate:"required,url"`
 	Alias string `json:"alias,omitempty"`
+	ID    int64  `json:"id,omitempty"`
 }
 
 type Response struct {
@@ -24,14 +25,14 @@ type Response struct {
 }
 
 type URLSaver interface {
-	SaveUrl(urlToSave string, alias string) (int64, error)
+	SaveUrl(urlToSave string, alias string, id *int64) (int64, error)
 	ExistUrlByAlias(alias string) (bool, error)
 }
 
 func New(log *slog.Logger, urlSaver URLSaver, aliasLength int64) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		const op = "internal.http.handlers.url.save.New"
+	const op = "internal.http.handlers.url.save.New"
 
+	return func(w http.ResponseWriter, r *http.Request) {
 		log = log.With(
 			slog.String("op", op),
 			slog.String("request_id", middleware.GetReqID(r.Context())),
@@ -73,7 +74,14 @@ func New(log *slog.Logger, urlSaver URLSaver, aliasLength int64) http.HandlerFun
 			return
 		}
 
-		id, err := urlSaver.SaveUrl(req.URL, alias)
+		var id int64
+
+		if req.ID != 0 {
+			id, err = urlSaver.SaveUrl(req.URL, alias, &req.ID)
+		} else {
+			id, err = urlSaver.SaveUrl(req.URL, alias, nil)
+		}
+
 		if errors.Is(err, storage.ErrURLExists) {
 			log.Info("URL уже существует", slog.String("url", req.URL))
 

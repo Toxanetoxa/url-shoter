@@ -2,7 +2,7 @@
     "swagger": "2.0",
     "info": {
         "description": "chi-swagger example APIs",
-        "title": "chi-swagger example APIs",
+        "title": "url-shoter APIs",
         "contact": {},
         "version": "1.0"
     },
